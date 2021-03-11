@@ -18,12 +18,13 @@ usage() {
     echo "  -a, --all               build for all php verions phpenv have. when -a used, -j option is ignored."
     echo "  -z, --zend-extension    registerd zend_extensin at ini file generated."
     echo "  --dry                   dry run mode."
+    echo "  --skip-test             skip testing after building extension."
     exit 1;
 }
 
 main() {
     script_dir=$(cd $(dirname $0); pwd)
-    opts=`getopt -o hvj:az -l help,verbose,php-version:,all,zend-extension,dry, -- "$@"`
+    opts=`getopt -o hvj:az -l help,verbose,php-version:,all,zend-extension,dry,skip-test, -- "$@"`
     eval set -- "$opts"
     while [ -n "$1" ]; do
         case $1 in
@@ -33,6 +34,7 @@ main() {
             -z|--zend-extension) is_zend=1;;
             -v|--verbose) is_verbose=1;;
             --dry) is_dry=1;;
+            --skip-test) is_skip_test=1;;
             --) shift; break;;
             *) usage;;
         esac
@@ -86,6 +88,9 @@ _build_extension() {
         local options=
         if [ $is_zend ];then
             options="-z $options"
+        fi
+        if [ $is_skip_test ];then
+            options="--skip-test $options"
         fi
 
         info "build $(green $package) on php-$(green $version)"
